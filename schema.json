@@ -23,5 +23,11 @@
                 "type": "string"
             }
         }
+    },
+    "registered": {
+        "type": "bool"
+    },
+    "nil": {
+        "type": "null"
     }
 }

@@ -7,7 +7,7 @@ from random import randint
 
 
 app = Flask(__name__)
-SIZE=6
+SIZE=12
 
 def get_rnd_string():
     chars=string.ascii_uppercase + string.digits
@@ -16,6 +16,11 @@ def get_rnd_string():
 
 def get_rnd_number():
     return randint(0, 2048)
+
+
+def get_rnd_bool():
+    return bool(random.getrandbits(1))
+
 
 
 def generate_object(obj_schema):
@@ -27,6 +32,10 @@ def generate_object(obj_schema):
             rnd_obj[key] = get_rnd_string()
         if elem['type'] == 'number':
             rnd_obj[key] = get_rnd_number()
+        if elem['type'] == 'bool':
+            rnd_obj[key] = get_rnd_bool()
+        if elem['type'] == 'null':
+            rnd_obj[key] = None
         if elem['type'] == 'object':
             rnd_obj[key] = generate_object(elem['schema'])
         if elem['type'] == 'list':
