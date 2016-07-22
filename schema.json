@@ -1,7 +1,5 @@
 {
-    "meta": {
-        "endpoint": "/people"
-    },
+    "endpoint": "/people",
     "schema": {
         "age": {
             "type": "number"

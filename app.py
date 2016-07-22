@@ -59,10 +59,10 @@ def hello():
     return "docmock v0.1"
 
 schema = load_schema()
-meta = schema['meta']
+endpoint = schema['endpoint']
 
 
-@app.route(meta['endpoint'], methods=['GET'])
+@app.route(endpoint, methods=['GET'])
 def endpoint():
     return jsonify(generate_collection(schema['schema']))
 
