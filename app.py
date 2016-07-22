@@ -18,25 +18,30 @@ def get_rnd_number():
     return randint(0, 2048)
 
 
-def generate_object():
+def generate_object(obj_schema):
     rnd_obj = {}
-    for key in schema:
-        elem = schema[key]
+    for key in obj_schema:
+        elem = obj_schema[key]
         app.logger.debug(elem['type'])
         if elem['type'] == 'string':
             rnd_obj[key] = get_rnd_string()
         if elem['type'] == 'number':
             rnd_obj[key] = get_rnd_number()
+        if elem['type'] == 'object':
+            rnd_obj[key] = generate_object(elem['schema'])
+        if elem['type'] == 'list':
+            rnd_obj[key] = generate_collection(elem['schema'])
+
     app.logger.debug(rnd_obj)
     return rnd_obj
         # print "key: %s , value: %s" % (key, mydictionary[key])
 
 
-def generate_collection():
+def generate_collection(obj_schema):
     num_objs = randint(0, 20)
     col = []
     for x in range(1,num_objs):
-        col.append(generate_object())
+        col.append(generate_object(obj_schema))
     return col
 
 def load_schema():
@@ -46,9 +51,9 @@ def load_schema():
 
 @app.route('/', methods=['GET'])
 def hello():
-    return jsonify(generate_collection())
+    schema = load_schema()
+    return jsonify(generate_collection(schema))
 
-schema = load_schema()
 
 if __name__ == '__main__':
     load_schema()

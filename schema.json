@@ -1,11 +1,27 @@
 {
     "user": {
-        "type": "string"
+        "type":  "string"
     },
     "password":{
-        "type" :"string"
+        "type" : "string"
     },
     "age":{
-        "type" :"number"
+        "type" : "number"
+    },
+    "computer":{
+        "type" : "object",
+        "schema": {
+            "brand": {
+                "type" : "string"
+            }
+        }
+    },
+    "emails":{
+        "type": "list",
+        "schema": {
+            "email" :{
+                "type": "string"
+            }
+        }
     }
 }
