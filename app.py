@@ -56,11 +56,18 @@ def load_schema():
 
 @app.route('/', methods=['GET'])
 def hello():
-    return jsonify(generate_collection(load_schema()))
+    return "docmock v0.1"
 
+schema = load_schema()
+meta = schema['meta']
+
+
+@app.route(meta['endpoint'], methods=['GET'])
+def endpoint():
+    return jsonify(generate_collection(schema['schema']))
 
 if __name__ == '__main__':
-    load_schema()
+
     app.run(
         host='0.0.0.0',
         port=5000,

@@ -1,33 +1,38 @@
 {
-    "user": {
-        "type":  "string"
+    "meta": {
+        "endpoint": "/people"
     },
-    "password":{
-        "type" : "string"
-    },
-    "age":{
-        "type" : "number"
-    },
-    "computer":{
-        "type" : "object",
-        "schema": {
-            "brand": {
-                "type" : "string"
-            }
+    "schema": {
+        "age": {
+            "type": "number"
+        },
+        "computer": {
+            "schema": {
+                "brand": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "emails": {
+            "schema": {
+                "email": {
+                    "type": "string"
+                }
+            },
+            "type": "list"
+        },
+        "nil": {
+            "type": "null"
+        },
+        "password": {
+            "type": "string"
+        },
+        "registered": {
+            "type": "bool"
+        },
+        "user": {
+            "type": "string"
         }
-    },
-    "emails":{
-        "type": "list",
-        "schema": {
-            "email" :{
-                "type": "string"
-            }
-        }
-    },
-    "registered": {
-        "type": "bool"
-    },
-    "nil": {
-        "type": "null"
     }
 }
