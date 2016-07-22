@@ -54,7 +54,7 @@ def generate_collection(obj_schema):
     return col
 
 def load_schema():
-    with open('/src/schema.json') as data_file:
+    with open('/data/schema.json') as data_file:
         return json.load(data_file)
 
 
