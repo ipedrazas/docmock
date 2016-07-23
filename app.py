@@ -1,6 +1,9 @@
 import json
+import numbers
+import os
 import random
 import string
+
 
 from flask import Flask, jsonify
 
@@ -20,6 +23,30 @@ def get_rnd_number():
 
 def get_rnd_bool():
     return bool(random.getrandbits(1))
+
+
+def define_collection(jobj):
+    num_objs = random.randint(0, 20)
+    col = []
+    for x in range(1, num_objs):
+        col.append(define_object(jobj))
+    return col
+
+
+def define_object(jobj):
+    rnd_obj = {}
+    for key, value in jobj.items():
+        if type(value) is str:
+            rnd_obj[key] = get_rnd_string()
+        if isinstance(value, numbers.Number):
+            rnd_obj[key] = get_rnd_number()
+        if isinstance(value, (dict)):
+            rnd_obj[key] = define_object(value)
+        if isinstance(value, (list)):
+            # we just need to analyse the first object
+            rnd_obj[key] = define_collection(value[0])
+
+    return rnd_obj
 
 
 def generate_object(obj_schema):
@@ -49,22 +76,38 @@ def generate_collection(obj_schema):
     return col
 
 
+def load_object():
+    base = os.environ.get("JSON")
+
+    if base:
+        return json.load(base)
+    else:
+        with open('/data/object.json') as data_file:
+            return json.load(data_file)
+
+
 def load_schema():
-    with open('/data/schema.json') as data_file:
-        return json.load(data_file)
+    schema = os.environ.get("SCHEMA")
+    if schema:
+        return json.load(schema)
+    else:
+        with open('/data/schema.json') as data_file:
+            return json.load(data_file)
 
 
 @app.route('/', methods=['GET'])
 def hello():
     return "docmock v0.1"
 
+jobj = load_object()
 schema = load_schema()
 endpoint = schema['endpoint']
 
 
 @app.route(endpoint, methods=['GET'])
 def endpoint():
-    return jsonify(generate_collection(schema['schema']))
+    return jsonify(define_collection(jobj))
+    # return jsonify(generate_collection(schema['schema']))
 
 if __name__ == '__main__':
 
