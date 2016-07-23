@@ -78,9 +78,9 @@ def generate_collection(obj_schema):
 
 def load_object():
     base = os.environ.get("JSON")
-
+    app.logger.debug(base)
     if base:
-        return json.load(base)
+        return json.loads(base)
     else:
         with open('/data/object.json') as data_file:
             return json.load(data_file)
@@ -89,7 +89,7 @@ def load_object():
 def load_schema():
     schema = os.environ.get("SCHEMA")
     if schema:
-        return json.load(schema)
+        return json.loads(schema)
     else:
         with open('/data/schema.json') as data_file:
             return json.load(data_file)
@@ -99,9 +99,12 @@ def load_schema():
 def hello():
     return "docmock v0.1"
 
+
+endpoint = os.environ.get("ENDPOINT")
 jobj = load_object()
-schema = load_schema()
-endpoint = schema['endpoint']
+
+if not endpoint:
+    schema = load_schema()
 
 
 @app.route(endpoint, methods=['GET'])
