@@ -105,6 +105,7 @@ jobj = load_object()
 
 if not endpoint:
     schema = load_schema()
+    endpoint = schema['endpoint']
 
 
 @app.route(endpoint, methods=['GET'])
