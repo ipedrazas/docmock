@@ -11,6 +11,13 @@ from flask import Flask, jsonify
 app = Flask(__name__)
 SIZE = 12
 
+SMAX = os.environ.get("MAX")
+
+if SMAX:
+    MAX = int(SMAX)
+else:
+    MAX = 20
+
 
 def get_rnd_string():
     chars = string.ascii_uppercase + string.digits
@@ -18,7 +25,7 @@ def get_rnd_string():
 
 
 def get_rnd_number():
-    return random.randint(0, 2048)
+    return random.randint(1, 2048)
 
 
 def get_rnd_bool():
@@ -26,7 +33,7 @@ def get_rnd_bool():
 
 
 def define_collection(jobj):
-    num_objs = random.randint(0, 20)
+    num_objs = random.randint(1, MAX)
     col = []
     for x in range(1, num_objs):
         col.append(define_object(jobj))
@@ -69,7 +76,7 @@ def generate_object(obj_schema):
 
 
 def generate_collection(obj_schema):
-    num_objs = random.randint(0, 20)
+    num_objs = random.randint(1, MAX)
     col = []
     for x in range(1, num_objs):
         col.append(generate_object(obj_schema))
@@ -110,8 +117,11 @@ if not endpoint:
 
 @app.route(endpoint, methods=['GET'])
 def endpoint():
-    return jsonify(define_collection(jobj))
-    # return jsonify(generate_collection(schema['schema']))
+    if jobj:
+        return jsonify(define_collection(jobj))
+    if schema:
+        return jsonify(generate_collection(schema['schema']))
+    return "Define json object or schema, please"
 
 if __name__ == '__main__':
 
