@@ -5,13 +5,35 @@ Docker to mock services based on a json schema.
 Docmock generates a REST enpoint that returns json objects based on the schema provided. The main use case is for integration testing in isolation of 3rd party services..
 
 
-There rea two ways of creating a REST endpoint. One is defining a schema, the other is just passing and `endpoint` env var and a `JSON` object:
+There rea two ways of creating a REST endpoint. One is defining a schema, the other is just passing and `endpoint` env var and a `JSON` object, you can also specify the maximum objects returned using the `MAX` env var. :
 
-        docker run -d -p 5000:5000 -e ENDPOINT="/things" -e JSON="$(cat object.json)" ipedrazas/docmock
+        docker run -d -p 5000:5000 -e ENDPOINT="/things" -e MAX=5 -e JSON="$(cat object.json)" ipedrazas/docmock
 
 This will run a cointainer that will expose an anedpoint in port 5000
 
-        curl localhost:5000/things
+        -> % curl localhost:8080/people
+        [
+          {
+            "age": 475,
+            "email": "8S90QNHLLWGZ",
+            "name": "IV3FS8UO0DUK"
+          },
+          {
+            "age": 13,
+            "email": "NMBRJD33U4MY",
+            "name": "01IKNMR3NB7K"
+          },
+          {
+            "age": 931,
+            "email": "W2F66PQ5U6YS",
+            "name": "7EFR7AE8R97U"
+          },
+          {
+            "age": 464,
+            "email": "4GBAJLVQDSTK",
+            "name": "TP79O5HN79XR"
+          }
+        ]
 
 Will return a collection os random objects like the one specified in `object.json`. If for example we would like to have an endpoint like `http://localhost:8080/super/long/endpoint/people` we just have to define the following JSON object like `person.json`:
 
