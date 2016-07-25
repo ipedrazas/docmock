@@ -11,12 +11,10 @@ from flask import Flask, jsonify
 app = Flask(__name__)
 SIZE = 12
 
-SMAX = os.environ.get("MAX")
+SMAX = os.environ.get("MAX", "20")
 
 if SMAX:
     MAX = int(SMAX)
-else:
-    MAX = 20
 
 
 def get_rnd_string():
