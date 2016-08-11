@@ -1,8 +1,10 @@
+"""DockMock - API to mock REST APIs."""
 import json
 import numbers
 import os
 import random
 import string
+import base64
 
 
 from flask import Flask, jsonify
@@ -18,19 +20,23 @@ if SMAX:
 
 
 def get_rnd_string():
+    """Generate randon string."""
     chars = string.ascii_uppercase + string.digits
     return ''.join(random.choice(chars) for _ in range(SIZE))
 
 
-def get_rnd_number():
-    return random.randint(1, 2048)
+def get_rnd_number(top=2048):
+    """Generate random number."""
+    return random.randint(1, top)
 
 
 def get_rnd_bool():
+    """Generate random bool."""
     return bool(random.getrandbits(1))
 
 
 def define_collection(jobj):
+    """Return a collection of objects."""
     num_objs = random.randint(1, MAX)
     col = []
     for x in range(1, num_objs):
@@ -39,6 +45,7 @@ def define_collection(jobj):
 
 
 def define_object(jobj):
+    """Create an object from a json object."""
     rnd_obj = {}
     for key, value in jobj.items():
         if type(value) is str:
@@ -55,6 +62,7 @@ def define_object(jobj):
 
 
 def generate_object(obj_schema):
+    """Generate an object from a schema definition."""
     rnd_obj = {}
     for key in obj_schema:
         elem = obj_schema[key]
@@ -74,6 +82,7 @@ def generate_object(obj_schema):
 
 
 def generate_collection(obj_schema):
+    """Generate a collection using schema."""
     num_objs = random.randint(1, MAX)
     col = []
     for x in range(1, num_objs):
@@ -82,16 +91,22 @@ def generate_collection(obj_schema):
 
 
 def load_object():
+    """Load json objevt from local json file."""
     base = os.environ.get("JSON")
-    app.logger.debug(base)
+    bbase = os.environ.get("BJSON")
+
     if base:
         return json.loads(base)
+    if bbase:
+        bjson = base64.b64decode(bbase.encode('ascii'))
+        return json.loads(bjson.decode('ascii'))
     else:
         with open('/data/object.json') as data_file:
             return json.load(data_file)
 
 
 def load_schema():
+    """Load scheam from local file."""
     schema = os.environ.get("SCHEMA")
     if schema:
         return json.loads(schema)
@@ -102,10 +117,14 @@ def load_schema():
 
 @app.route('/', methods=['GET'])
 def hello():
+    """Default endpoint."""
     return "docmock v0.1"
 
 
 endpoint = os.environ.get("ENDPOINT")
+if not endpoint.startswith('/'):
+    endpoint = "/" + endpoint
+
 jobj = load_object()
 
 if not endpoint:
@@ -115,6 +134,7 @@ if not endpoint:
 
 @app.route(endpoint, methods=['GET'])
 def endpoint():
+    """Endpoint exposed."""
     if jobj:
         return jsonify(define_collection(jobj))
     if schema:
