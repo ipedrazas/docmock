@@ -3,7 +3,7 @@ MAINTAINER Ivan Pedrazas <ipedrazas@gmail.com>
 
 
 RUN pip install  \
-    flask
+    flask requests
 
 
 COPY . /src
