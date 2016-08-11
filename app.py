@@ -120,6 +120,10 @@ def hello():
     """Default endpoint."""
     return "docmock v0.1"
 
+@app.route('/_status/healthz', methods=['GET'])
+def hello():
+    """Health check endpoint."""
+    return "healthy"
 
 endpoint = os.environ.get("ENDPOINT")
 if not endpoint.startswith('/'):
