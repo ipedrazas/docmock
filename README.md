@@ -203,3 +203,27 @@ Now we run our service with 2 dependencies:
 To test, a simple curl command will be enough:
 
     curl localhost:5000/_status/healthz
+
+To make it fail,  we only have to call a non-existing dependency
+
+  docker run -it -p 5000:5000 \
+    -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" \
+    -e ENDPOINT=srv3 \
+    -e DEPENDENCIES="http://srv1:5000/srv1,http://srv3:5000/srv3" \
+    --link srv1:srv1 \
+  ipedrazas/docmock
+
+
+## Debug
+
+To enable debugging, you have to set the `DEBUG` env var:
+
+    docker run -it -p 5000:5000 \
+      -e DEBUG=true
+      -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" \
+      -e ENDPOINT=srv3 \
+      -e DEPENDENCIES="http://srv1:5000/srv1,http://srv3:5000/srv3" \
+      --link srv1:srv1 \
+    ipedrazas/docmock
+
+Debugging will log all the responses of all the requests, dependencies included.
