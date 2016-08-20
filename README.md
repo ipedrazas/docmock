@@ -1,15 +1,17 @@
 # docmock
 
-Docker to mock services based on a json schema.
+[![](https://images.microbadger.com/badges/image/ipedrazas/docmock.svg)](https://microbadger.com/images/ipedrazas/docmock "Get your own image badge on microbadger.com")
+
+Docker to mock services based on a json file or a json schema.
 
 Docmock generates a REST enpoint that returns json objects based on the schema provided. The main use case is for integration testing in isolation of 3rd party services..
 
 
-There rea two ways of creating a REST endpoint. One is defining a schema, the other is just passing and `endpoint` env var and a `JSON` object, you can also specify the maximum objects returned using the `MAX` env var. :
+There are two ways of creating a REST endpoint. One is defining a schema, the other is just passing and `endpoint` env var and a `JSON` object, you can also specify the maximum objects returned using the `MAX` env var. :
 
         docker run -d -p 5000:5000 -e ENDPOINT="/things" -e MAX=5 -e JSON="$(cat object.json)" ipedrazas/docmock
 
-This will run a cointainer that will expose an anedpoint in port 5000
+This will run a cointainer that will expose an endpoint in port 5000
 
         -> % curl localhost:8080/people
         [
@@ -35,7 +37,7 @@ This will run a cointainer that will expose an anedpoint in port 5000
           }
         ]
 
-Will return a collection os random objects like the one specified in `object.json`. If for example we would like to have an endpoint like `http://localhost:8080/super/long/endpoint/people` we just have to define the following JSON object like `person.json`:
+Will return a collection os random objects like the one specified in `object.json`. If for example we would like to have an endpoint like `http://localhost:8080/super/long/endpoint/people` you just have to define the following JSON object `person.json`:
 
         {
             "name": "a name",
@@ -48,8 +50,6 @@ then, we run our container like
         docker run -d -p 8080:5000 -e ENDPOINT="/super/long/endpoint/people" -e JSON=$(cat person.json) ipedrazas/docmock
 
 If we now curl localhost at 8080 we will get the following response:
-
-
 
     -> % curl -vvv localhost:8080//super/long/endpoint/people
 
@@ -160,3 +160,33 @@ Schema definition is pretty simple, you define the attribute name and include th
             }
         }
 ```
+
+## Kubernetes support
+
+In order to use `docmock` inside a kubernetes cluster, you can inject the json file base64 encoded using the env var 'BJSON'. For example, the next container will create an endpoint in `http://localhost:5000/srv1`
+
+    docker run -it -p 5000:5000 \
+      -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" \
+      -e ENDPOINT=srv1 \
+    ipedrazas/docmock
+
+
+This service will return a collection of objects similar to:
+
+    echo "ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" | base64 -D
+    {
+    "name": "Ivan",
+    "Age": 42
+    }
+
+## Dependencies
+
+Sometimes we want the health check to verify if the dependencies are healthy too. To inject dependencies into the container we have to use the env var `DEPENDENCIES`. Dependencies will be a sequence of urls comma separated.
+
+Let's assume we want to create a service that exposes an endpoint as 'http://localhost:5000/srv3' that has two dependencies: `http://localhost:5001/srv1` and `http://localhost:5000/srv2`, we should call our docker container as follows:
+
+    docker run -it -p 5000:5000 \
+      -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" \
+      -e ENDPOINT=srv2 \
+      -e DEPENDENCIES="http://localhost:5000/srv1,http://localhost:5000/srv2"
+    ipedrazas/docmock
