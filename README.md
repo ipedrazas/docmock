@@ -4,7 +4,7 @@
 
 Docker to mock services based on a json file or a json schema.
 
-Docmock generates a REST enpoint that returns json objects based on the schema provided. The main use case is for integration testing in isolation of 3rd party services..
+Docmock generates a REST endpoint that returns json objects based on the schema provided. The main use case is for integration testing in isolation of 3rd party services...
 
 
 There are two ways of creating a REST endpoint. One is defining a schema, the other is just passing and `endpoint` env var and a `JSON` object, you can also specify the maximum objects returned using the `MAX` env var. :
