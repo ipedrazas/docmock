@@ -5,9 +5,10 @@ import os
 import random
 import string
 import base64
+from requests_futures.sessions import FuturesSession
 
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, abort
 
 
 app = Flask(__name__)
@@ -120,16 +121,49 @@ def hello():
     """Default endpoint."""
     return "docmock v0.1"
 
+def http_callback(sess, resp):
+    app.logger.debug(resp.text)
+
+def check_dependencies():
+    healthy = True
+    urls = dependencies.split(",")
+    session = FuturesSession()
+    try:
+        for url in urls:
+            future = session.get(url, background_callback=http_callback)
+            response = future.result()
+            if response.status_code != 200:
+                healthy = False
+    except Exception as e:
+        return False
+    return healthy
+
+
 @app.route('/_status/healthz', methods=['GET'])
-def hello():
+def healthz():
     """Health check endpoint."""
+    if dependencies:
+        app.logger.debug("checking dependencies")
+        ret = check_dependencies()
+        if not ret:
+            # return 412 Precondition Failed (RFC 7232)
+            # https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+            abort(412)
     return "healthy"
+
 
 endpoint = os.environ.get("ENDPOINT")
 if not endpoint.startswith('/'):
     endpoint = "/" + endpoint
 
 jobj = load_object()
+
+dependencies = os.environ.get("DEPENDENCIES")
+envdebug = os.environ.get("DEBUG")
+
+debug = False
+if envdebug and envdebug.lower() == "true":
+    debug = True
 
 if not endpoint:
     schema = load_schema()
@@ -150,5 +184,5 @@ if __name__ == '__main__':
     app.run(
         host='0.0.0.0',
         port=5000,
-        debug=True,
+        debug=debug,
         threaded=True)

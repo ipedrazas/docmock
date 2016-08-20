@@ -183,10 +183,23 @@ This service will return a collection of objects similar to:
 
 Sometimes we want the health check to verify if the dependencies are healthy too. To inject dependencies into the container we have to use the env var `DEPENDENCIES`. Dependencies will be a sequence of urls comma separated.
 
-Let's assume we want to create a service that exposes an endpoint as 'http://localhost:5000/srv3' that has two dependencies: `http://localhost:5001/srv1` and `http://localhost:5000/srv2`, we should call our docker container as follows:
+Let's assume we want to create a service that exposes an endpoint as 'http://localhost:5000/srv3' that has two dependencies: `http://localhost:5001/srv1` and `http://localhost:5000/srv2`, first, we need to run the 2 containers
+for our dependencies:
+
+    docker run -d -e ENDPOINT=srv1 --name srv1 -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" ipedrazas/docmock
+
+    docker run -d -e ENDPOINT=srv2 --name srv2 -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" ipedrazas/docmock
+
+Now we run our service with 2 dependencies:
 
     docker run -it -p 5000:5000 \
       -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" \
-      -e ENDPOINT=srv2 \
-      -e DEPENDENCIES="http://localhost:5000/srv1,http://localhost:5000/srv2"
+      -e ENDPOINT=srv3 \
+      -e DEPENDENCIES="http://srv1:5000/srv1,http://srv2:5000/srv2" \
+      --link srv1:srv1 \
+      --link srv2:srv2 \
     ipedrazas/docmock
+
+To test, a simple curl command will be enough:
+
+    curl localhost:5000/_status/healthz
