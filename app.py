@@ -126,7 +126,7 @@ def http_callback(sess, resp):
 
 def check_dependencies():
     healthy = True
-    app.logger.debug("checking urls: " + urls)
+    app.logger.debug("checking urls: " + dependencies)
     urls = dependencies.split(",")
     session = FuturesSession()
     try:
