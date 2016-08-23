@@ -128,21 +128,22 @@ def check_dependencies():
     app.logger.debug("checking urls: " + dependencies)
     urls = dependencies.split(",")
     session = FuturesSession()
-    try:
-        futures = []
-        for url in urls:
-            app.logger.debug("checking url " + url)
-            if len(url) > 0:
-                futures.append(session.get(url, background_callback=http_callback))
-        for f in futures:
-            response = f.result()
-            app.logger.debug("status code " + response.status_code)
-            if response.status_code != 200:
-                app.logger.debug("Unhealthy! " + response.status_cod)
-                return False
-    except Exception as e:
-        app.logger.debug(str(e))
-        return False
+    # try:
+    futures = []
+    for url in urls:
+        app.logger.debug("checking url " + url)
+        if len(url) > 0:
+            futures.append(session.get(url, background_callback=http_callback))
+    for f in futures:
+        response = f.result()
+        app.logger.debug("status code " + str(response.status_code))
+        if response.status_code != 200:
+            app.logger.debug("Unhealthy! " + str(response.status_code))
+            return False
+    # except Exception as e:
+    #     app.logger.debug(str(e))
+    #     print e
+    #     return False
     return True
 
 
