@@ -6,8 +6,7 @@ import random
 import string
 import base64
 from requests_futures.sessions import FuturesSession
-
-
+from urllib.parse import urlparse
 from flask import Flask, jsonify, abort
 
 
@@ -130,10 +129,13 @@ def check_dependencies():
     session = FuturesSession()
     try:
         for url in urls:
-            future = session.get(url, background_callback=http_callback)
-            response = future.result()
-            if response.status_code != 200:
-                healthy = False
+            app.logger.debug("checking url " + url)
+            if len(url) > 0:
+                future = session.get(url, background_callback=http_callback)
+                response = future.result()
+                app.logger.debug("status code" + response.status_code)
+                if response.status_code != 200:
+                    healthy = False
     except Exception as e:
         return False
     return healthy
