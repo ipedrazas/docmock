@@ -1,6 +1,8 @@
 FROM python:3.5.2-alpine
 MAINTAINER Ivan Pedrazas <ipedrazas@gmail.com>
 
+RUN apk add --update bash curl && \
+    rm -rf /var/cache/apk/*
 
 RUN pip install  \
     flask requests requests-futures

@@ -12,6 +12,7 @@ from flask import Flask, jsonify, abort
 
 app = Flask(__name__)
 SIZE = 12
+VERSION = "0.0.2"
 
 SMAX = os.environ.get("MAX", "20")
 
@@ -118,7 +119,7 @@ def load_schema():
 @app.route('/', methods=['GET'])
 def hello():
     """Default endpoint."""
-    return "docmock v0.1"
+    return "docmock " + VERSION
 
 def http_callback(sess, resp):
     app.logger.debug(resp.text)
