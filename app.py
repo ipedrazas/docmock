@@ -135,9 +135,10 @@ def check_dependencies():
             if len(url) > 0:
                 future = session.get(url, background_callback=http_callback)
                 response = future.result()
-                app.logger.debug("status code" + response.status_code)
+                app.logger.debug("status code " + response.status_code)
                 app.logger.debug("response data:\n" + response.text)
                 if response.status_code != 200:
+                    app.logger.debug("Unhealthy! " + response.status_cod)
                     healthy = False
     except Exception as e:
         return False
