@@ -126,6 +126,7 @@ def http_callback(sess, resp):
 
 def check_dependencies():
     healthy = True
+    app.logger.debug("checking urls: " + urls)
     urls = dependencies.split(",")
     session = FuturesSession()
     try:
@@ -135,6 +136,7 @@ def check_dependencies():
                 future = session.get(url, background_callback=http_callback)
                 response = future.result()
                 app.logger.debug("status code" + response.status_code)
+                app.logger.debug("response data:\n" + response.text)
                 if response.status_code != 200:
                     healthy = False
     except Exception as e:
