@@ -141,7 +141,7 @@ def check_dependencies():
                 app.logger.debug("Unhealthy! " + response.status_cod)
                 return False
     except Exception as e:
-        app.logger.debug(e.message)
+        app.logger.debug(str(e))
         return False
     return True
 
