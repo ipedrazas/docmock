@@ -125,25 +125,25 @@ def http_callback(sess, resp):
     app.logger.debug(resp.text)
 
 def check_dependencies():
-    healthy = True
     app.logger.debug("checking urls: " + dependencies)
     urls = dependencies.split(",")
     session = FuturesSession()
     try:
-        future = []
+        futures = []
         for url in urls:
             app.logger.debug("checking url " + url)
             if len(url) > 0:
-                future.append(session.get(url, background_callback=http_callback))
-        for f in future:
+                futures.append(session.get(url, background_callback=http_callback))
+        for f in futures:
             response = f.result()
             app.logger.debug("status code " + response.status_code)
             if response.status_code != 200:
                 app.logger.debug("Unhealthy! " + response.status_cod)
                 return False
     except Exception as e:
+        app.logger.debug(e.message)
         return False
-    return healthy
+    return True
 
 
 @app.route('/_status/healthz', methods=['GET'])
