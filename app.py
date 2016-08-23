@@ -130,16 +130,17 @@ def check_dependencies():
     urls = dependencies.split(",")
     session = FuturesSession()
     try:
+        future = []
         for url in urls:
             app.logger.debug("checking url " + url)
             if len(url) > 0:
-                future = session.get(url, background_callback=http_callback)
-                response = future.result()
-                app.logger.debug("status code " + response.status_code)
-                app.logger.debug("response data:\n" + response.text)
-                if response.status_code != 200:
-                    app.logger.debug("Unhealthy! " + response.status_cod)
-                    healthy = False
+                future.append(session.get(url, background_callback=http_callback))
+        for f in future:
+            response = f.result()
+            app.logger.debug("status code " + response.status_code)
+            if response.status_code != 200:
+                app.logger.debug("Unhealthy! " + response.status_cod)
+                return False
     except Exception as e:
         return False
     return healthy
