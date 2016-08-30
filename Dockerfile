@@ -5,7 +5,7 @@ RUN apk add --update bash curl && \
     rm -rf /var/cache/apk/*
 
 RUN pip install  \
-    flask requests requests-futures
+    flask requests requests-futures redis
 
 LABEL description="Mocking services based on a json file or a json schema."
 LABEL base="alpine"

@@ -186,9 +186,22 @@ Sometimes we want the health check to verify if the dependencies are healthy too
 Let's assume we want to create a service that exposes an endpoint as 'http://localhost:5000/srv3' that has two dependencies: `http://localhost:5001/srv1` and `http://localhost:5000/srv2`, first, we need to run the 2 containers
 for our dependencies:
 
-    docker run -d -e ENDPOINT=srv1 --name srv1 -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" ipedrazas/docmock
+    docker run -d redis
 
-    docker run -d -e ENDPOINT=srv2 --name srv2 -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" ipedrazas/docmock
+    docker run -d \
+      --link adoring_franklin:redis \
+      -e ENDPOINT=srv1 \
+      -e REDIS=redis  \
+      -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" \
+      --link adoring_franklin:redis \
+    ipedrazas/docmock
+
+    docker run -d \
+      -e ENDPOINT=srv2 \
+      -e REDIS=redis  \
+      -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" \
+      --link adoring_franklin:redis \
+    ipedrazas/docmock
 
 Now we run our service with 2 dependencies:
 
@@ -196,8 +209,10 @@ Now we run our service with 2 dependencies:
       -e BJSON="ewogICJuYW1lIjogIkl2YW4iLAogICJBZ2UiOiA0Mgp9Cg==" \
       -e ENDPOINT=srv3 \
       -e DEPENDENCIES="http://srv1:5000/srv1,http://srv2:5000/srv2" \
-      --link srv1:srv1 \
-      --link srv2:srv2 \
+      -e REDIS=redis  \
+      --link boring_bose:srv1 \
+      --link romantic_volhard:srv2 \
+      --link adoring_franklin:redis \
     ipedrazas/docmock
 
 To test, a simple curl command will be enough:

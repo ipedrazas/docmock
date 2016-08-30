@@ -8,6 +8,7 @@ import base64
 from requests_futures.sessions import FuturesSession
 from urllib.parse import urlparse
 from flask import Flask, jsonify, abort
+import redis
 
 
 app = Flask(__name__)
@@ -119,6 +120,8 @@ def load_schema():
 @app.route('/', methods=['GET'])
 def hello():
     """Default endpoint."""
+    if redis:
+        con.incr("http_response");
     return "docmock " + VERSION
 
 def http_callback(sess, resp):
@@ -128,28 +131,32 @@ def check_dependencies():
     app.logger.debug("checking urls: " + dependencies)
     urls = dependencies.split(",")
     session = FuturesSession()
-    # try:
-    futures = []
-    for url in urls:
-        app.logger.debug("checking url " + url)
-        if len(url) > 0:
-            futures.append(session.get(url, background_callback=http_callback))
-    for f in futures:
-        response = f.result()
-        app.logger.debug("status code " + str(response.status_code))
-        if response.status_code != 200:
-            app.logger.debug("Unhealthy! " + str(response.status_code))
-            return False
-    # except Exception as e:
-    #     app.logger.debug(str(e))
-    #     print e
-    #     return False
+    try:
+        futures = []
+        for url in urls:
+            if redis_host:
+                con.incr("http_request");
+            app.logger.debug("checking url " + url)
+            if len(url) > 0:
+                futures.append(session.get(url, background_callback=http_callback))
+        for f in futures:
+            if redis_host:
+                con.incr("http_response");
+            response = f.result()
+            app.logger.debug("status code " + str(response.status_code))
+            if response.status_code != 200:
+                app.logger.debug("Unhealthy! " + str(response.status_code))
+                return False
+    except Exception as e:
+        return False
     return True
 
 
 @app.route('/_status/healthz', methods=['GET'])
 def healthz():
     """Health check endpoint."""
+    if redis_host:
+        con.incr("http_response");
     if dependencies:
         app.logger.debug("checking dependencies")
         ret = check_dependencies()
@@ -177,10 +184,16 @@ if not endpoint:
     schema = load_schema()
     endpoint = schema['endpoint']
 
+redis_host = os.environ.get("REDIS")
+if redis_host:
+    con = redis.StrictRedis(host=redis_host, port=6379, db=0)
+
 
 @app.route(endpoint, methods=['GET'])
 def endpoint():
     """Endpoint exposed."""
+    if redis_host:
+        con.incr("http_response");
     if jobj:
         return jsonify(define_collection(jobj))
     if schema:
