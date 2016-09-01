@@ -103,7 +103,7 @@ def load_object():
         bjson = base64.b64decode(bbase.encode('ascii'))
         return json.loads(bjson.decode('ascii'))
     else:
-        with open('/data/object.json') as data_file:
+        with open('example.json') as data_file:
             return json.load(data_file)
 
 
@@ -120,7 +120,7 @@ def load_schema():
 @app.route('/', methods=['GET'])
 def hello():
     """Default endpoint."""
-    if redis:
+    if redis_host:
         con.incr("http_response");
     return "docmock " + VERSION
 
@@ -166,8 +166,11 @@ def healthz():
             abort(412)
     return "healthy"
 
-
+# Setting endpoint
 endpoint = os.environ.get("ENDPOINT")
+# Default falls back to /test
+if not endpoint:
+    endpoint = "/test"
 if not endpoint.startswith('/'):
     endpoint = "/" + endpoint
 
